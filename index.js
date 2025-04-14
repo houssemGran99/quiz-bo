@@ -66,29 +66,16 @@ app.get("/api/questions", async (req, res) => {
 });
 
 
-// API endpoint to save question
-/* app.post("/api/question", async (req, res) => {
-  console.log(req.body);
-  
+// Delete a question
+app.post("/delete-question/:id", async (req, res) => {
   try {
-    const { text, answers } = req.body;
-
-    
-    //console.log(text);
-    //console.log(answers);
-    
-    
-    if (!text || !Array.isArray(answers) || answers.length === 0) {
-      return res.status(400).json({ message: "Invalid input" });
-    }
-    const newQuestion = new Question({ text, answers });
-    await newQuestion.save();
-    res.status(201).json({ message: "Question saved" });
+    await Question.findByIdAndDelete(req.params.id);
+    res.redirect("/questions");
   } catch (error) {
-    console.error("❌ Error saving question:", error);
-    res.status(500).json({ message: "Failed to save question", error: error.message });
+    console.error("Error deleting question:", error);
+    res.status(500).send("Error deleting question");
   }
-}); */
+});
 
 
 app.listen(port, () => {
