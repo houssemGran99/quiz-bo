@@ -2,12 +2,13 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require('cors');
+require('dotenv').config()
 
 const app = express();
 const port = 3000;
 
 // Connect to MongoDB
-mongoose.connect("mongodb+srv://HoussemNinja:hunterxhunter@cluster0.d60sb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", {
+mongoose.connect("mongodb+srv://HoussemNinja:"+process.env.DB_PASSWORD+"@cluster0.d60sb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }).then(console.log("connected to the DB"));
