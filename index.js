@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require('cors');
+const text = require("body-parser/lib/types/text");
 require('dotenv').config()
 
 const app = express();
@@ -19,11 +20,23 @@ const questionSchema = new mongoose.Schema({
   correctAnswer:String
 });
 
-app.use(express.static("public"));
 
-app.use(cors());
+const labelsSchema = new mongoose.Schema({
+  label1 : String,
+  label2 : String,
+  label3 : String,
+  lesson : String
+})
+
 
 const Question = mongoose.model("Question", questionSchema);
+const Labels = mongoose.model("Labels",labelsSchema);
+
+
+app.use(express.static("public"));
+app.use(cors());
+
+
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -75,6 +88,72 @@ app.post("/delete-question/:id", async (req, res) => {
   } catch (error) {
     console.error("Error deleting question:", error);
     res.status(500).send("Error deleting question");
+  }
+});
+
+
+// Show form to create a label
+app.get("/add-label", (req, res) => {
+  res.render("add-label");
+});
+
+// Handle form submission for labels
+app.post("/add-label", async (req, res) => {
+  const { key, label } = req.body;
+  
+  const newLabel = new Labels({
+    key: key,
+    label: label
+  });
+
+  console.log(newLabel);
+  
+
+  await newLabel.save();
+  res.redirect("/add-label");
+});
+
+// Display all labels
+app.get("/labels", async (req, res) => {
+  const labels = await Labels.find();
+  res.render("labels", { labels });
+});
+
+// API Route to Fetch Labels
+app.get("/api/labels", async (req, res) => {
+  try {
+      const labels = await Labels.find();
+      res.json(labels);
+  } catch (error) {
+      res.status(500).json({ message: "Error fetching labels", error });
+  }
+});
+
+// Delete a label
+app.post("/delete-label/:id", async (req, res) => {
+  try {
+    await Labels.findByIdAndDelete(req.params.id);
+    res.redirect("/labels");
+  } catch (error) {
+    console.error("Error deleting label:", error);
+    res.status(500).send("Error deleting label");
+  }
+});
+
+// Handle form submission for updating labels
+app.post("/update-label/:id", async (req, res) => {
+  try {
+    const { label1, label2, label3, lesson } = req.body;
+    await Labels.findByIdAndUpdate(req.params.id, {
+      label1,
+      label2,
+      label3,
+      lesson
+    });
+    res.redirect("/labels");
+  } catch (error) {
+    console.error("Error updating label:", error);
+    res.status(500).send("Error updating label");
   }
 });
 
